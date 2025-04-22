@@ -1,4 +1,4 @@
-# Project Title
+# Global Trends in Popular Game Genres
 
 Write a 1-2 sentences that quickly and clearly convey what your repo is for.
 
