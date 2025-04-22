@@ -1,6 +1,6 @@
 # Global Trends in Popular Game Genres
 
-Write a 1-2 sentences that quickly and clearly convey what your repo is for.
+This repository contains the code, datasets, and visualization charts for the Popularity of Video Game Genres Across the Globe project. This project discusses the global popularity of video games, focusing in particular on the evolution of the popularity of different genres over time, marketing performance and correlates. Thereby revealing the development trajectory behind the gaming market and the evolution of user preferences.
 
 ## Overview
 
