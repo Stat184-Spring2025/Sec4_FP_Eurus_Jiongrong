@@ -4,13 +4,14 @@ This repository contains the code, datasets, and visualization charts for the Po
 
 ## Overview
 
-Expand on those introductory sentences with a brief but informative description of your project's purpose and goals. This section should help visitors decide whether they should dig deeper into your repo/project.
+This project aims to explore the global popularity of different video game genres from 1978 to 2024. By analyzing data on game sales, platforms, and ratings, we hope to answer the following questions:
+  1. Which game genres are the best sellers? How much market share do they hold?
+  2. Does the popularity of game genres have change over time? Are there cyclical trends?
+  3. Does the Occident game market trend in genres differently than the global market
 
-### Interesting Insight
+Using the data processing and visualization tools of the R language, a series of charts and analyses will be constructed to reveal the historical trajectory of genre evolution in the gaming market and its possible future direction.
 
-This is optional but highly recommended. You'll include one interesting insight from your project as part of the README. This insight is most effective when you include a visual. Keep in mind that this visual must be included as an image file (e.g., JPG, PNG, etc.). You can export plots created with `{ggplot2}` by using the function `ggsave`.
-
-## Repo Structure
+## Repository Structure
 
 Use this section to explain the structure of your repo. This should help visitors quickly figure out where they should look to find certain elements. Further, you can use this space to highlight and briefly explain important/key files in the repo.
 
