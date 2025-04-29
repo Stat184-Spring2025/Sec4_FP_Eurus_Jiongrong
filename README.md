@@ -13,11 +13,29 @@ Using the data processing and visualization tools of the R language, a series of
 
 ## Repository Structure
 
-Use this section to explain the structure of your repo. This should help visitors quickly figure out where they should look to find certain elements. Further, you can use this space to highlight and briefly explain important/key files in the repo.
+### Code:
+data_cleaning_visual.r
+ - Data wrangling and cleaning
+ - Generates the datase for analysis
+ - Data visualization including:
+   1. Global game gener sales percentage table
+   2. Bar graph for top 12 game genres by global sales
+   3. Line graph and curve graph for top 5 game genres sales trend within time
+   4. Bar graph for comparative analysis of occident and global market.
 
-## Data Sources and Acknowledgements
+### Data:
+- Video Game Sales.csv
+- Video Game Sales as 22Dec 2016.csv
+- Cleaned Global Video Game Sales.csv
+- Clean VG.csv
 
-Be sure to list where you got any data used within the project. Be sure to acknowledge any one whose work or elements you're drawing upon.
+
+## Acknowledgements
+- The dataset(Video Game Sales; Video Game Sales as 22Dec 2016; Cleaned Global Video Game Sales) was sourced from Kaggle
+- This project was completed by:
+    Eurus Mao
+    Jiongrong Pan
+
 
 ## Contact
 
