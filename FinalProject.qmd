@@ -1,0 +1,363 @@
+---
+title: "Global Trends in Popular Game Genres"
+author: "Eurus Mao, Jiongrong Pan"
+date: "`r Sys.Date()`"
+format: pdf
+execute: 
+  echo: false
+  warning: false
+---
+```{r}
+library(readr)
+library(dplyr)
+library(tidyverse)
+library(readxl)
+library(tidyr)
+library(ggplot2)
+library(ggrepel)
+
+# import data
+VGS_Dec2016 <- read_csv("C:/Users/mark/Downloads/FinalProject Data/Video_Games_Sales_as_at_22_Dec_2016.csv")
+vgsales <- read_csv("C:/Users/mark/Downloads/FinalProject Data/vgsales.csv")
+VG <- read_csv("C:/Users/mark/Downloads/FinalProject Data/Video_Games.csv")
+clean_VGS <- read_csv("C:/Users/mark/Downloads/FinalProject Data/cleaned_global_video_game_sales.csv")
+
+# clean data
+
+clean_VGS_Dec2016 <- VGS_Dec2016 %>% select(-c(Platform, Other_Sales, Critic_Score, Critic_Count, 
+                                               User_Score, User_Count, Developer, Rating))
+clean_VG <- VG %>% select(-c(Platform, Other_Sales, Critic_Score, Critic_Count, 
+                             User_Score, User_Count, Developer, Rating))
+clean_vgsales <- vgsales %>% select(-c(Platform, Other_Sales, Rank))
+
+clean_VGS <- clean_VGS %>% select(-c(Rank, Platform, Other_Sales))
+```
+
+
+# Introduction
+
+As digital technology revolutionizes and cultural consumption patterns evolve, the global video game industry has experienced a deep reshaping. Along with the continuous expansion of the industry scale, the market pattern of game genres is going through a dynamic adjustment. There are classic genres that continue to lead the market, and there are also constantly emerging sub genres that combine innovative forms. However, the popularity of different game genres is constantly changing, which is closely related to several factors, including technological advances, player preferences, cultural differences, and marketing strategies.
+The purpose of this project is to explore global trends in the popularity of video game genres, specifically the changes of different game genres globally as well as in specific regions (e.g. the North American market). By analyzing historical data, we hope to answer the following core questions:
+
+1. Which game genres are the best sellers? What is their percentage share in the global market?
+  
+  By analyzing the sales data of different game genres, we can understand which genres are the most popular in the market and explore their market share. This  analysis will help reveal which game genres dominate the market.
+  
+2. Has the popularity of game genres changed over time?   Are there cyclical trends?
+  
+  The popularity of game genres tends to be cyclical,  and certain genres may regain favor with players    over time. Through time-series analysis, we will examine  whether there are significant cyclical fluctuations in    these game genres and whether their popularity shows a certain pattern.
+    
+3. What are the differences in game genre trends between Occident and global markets?
+  
+  Occident markets are usually one of the key markets in the video game industry, but their preferences may be different from the general trends in the global market. We will make an in-depth comparison of the differences in game genres between the North American market and the global market, analyze their respective popularity trends and preferences, explore the impact of regional differences in the market on the game industry.
+
+These questions not only help us understand the evolution of the video game market, but also provide valuable market insights for game developers and publishers, helping them better grasp player needs and market trends in order to optimize their product and marketing strategies.
+
+# Data Provenance
+
+## Primary Dataset
+
+Source: Kaggle
+
+Description: It contains sales data for thousands of video games released worldwide since the 1980s. The data includes game name, platform, release year, publisher, game genre, and sales in North America, Europe, Japan dan worldwide(in millions of units).
+
+Purpose: This dataset is used as the primary data source for this project to perform Exploratory Data Analysis and to create various charts to help analyze the popularity of different game genres globally in terms of trends, sales shares and geographical variations.
+
+## Secondary Source
+
+Source: YouTube Video
+
+Description: This video, called “The Complete History of Video Games”, shows the development of the gaming industry from the 1970s to the present in the form of visual animation. The video covers the changes of mainstream gaming platforms in different eras, the release of representative games, and the changing trends of the industry scale, providing a timeline-style visual interpretation.
+
+Purpose: The video is used as an additional data source to help understand the overall evolution of the gaming industry, especially in support the data analysis of this project, which makes the background of the changes in the gaming market at different points in time more intuitively visualized.
+
+# FAIR and CARE
+
+- The data is sourced from open data platforms, and we provide detailed access instructions and download links to ensure that others can easily access.
+
+- All data are stored using standard tabular formats (CSV) that can be easily read and analyzed across different platforms.
+
+- In the code section, we provide detailed steps on how to process, clean and analyze the data, which are replicable and can be reused by anyone in similar contexts.
+
+- The purpose of our project is to explore the changing trends of the global gaming market and discover the changes in the popularity of different types of games in different regions over time. It will help to promote the globalization of the gaming industry, developers and market analysts to make a targeted decisions.
+
+- When working with the data, we made sure to respect the work of the data provider. We did not change the content of the data during the analysis process, but only performed standard cleaning and pre-processing to ensure that the data was authentic and reliable.
+
+- Our project does not involve any sensitive personal data or private information, all datasets are limited to the public sales data. There fore, the use of the data does not involve any invasion of personal privacy.
+
+# Exploratory Data Analysis
+
+## Overview
+In order to provide a deeper understanding of the data and answer our research questions, we conducted an exploratory data analysis (EDA). The main objective of this EDA was to uncover the popularity trends of game genres in global and regional markets through visualization and summary statistics, as well as to reveal patterns in game sales over time. We compiled the total sales data of each game genre in the global market and plotted the statistical graphs to clarify the market share distribution of the major genres.
+This section presents the most critical charts and corresponding analysis, summarizing the important trends and phenomena. These findings establish the foundation for the results and conclusions section that follows.
+
+## Global Game Genre Sales and Market Share
+
+Global sales of the top 12 types of games in order of sales, in descending order
+```{r}
+genre_sales <- clean_VGS %>%
+  group_by(Genre) %>%
+  summarise(Total_Genre_Sales = sum(Global_Sales, na.rm = TRUE))
+
+total_sales <- sum(clean_VGS$Global_Sales, na.rm = TRUE)
+
+genre_sales <- genre_sales %>%
+  mutate(Percentage = (Total_Genre_Sales / total_sales) * 100)
+
+print(genre_sales)
+```
+
+
+This distribution reflects the fact that fast-paced, easy to play action games and sports games linked to real sporting events have maintanied a very high level of global appeal for a long time.
+```{r}
+genre_sales <- clean_VGS %>%
+  group_by(Genre) %>%
+  summarise(Global_Sales = sum(Global_Sales, na.rm = TRUE)) %>%
+  arrange(desc(Global_Sales))
+
+ggplot(genre_sales, aes(x = reorder(Genre, Global_Sales), y = Global_Sales, fill = Genre)) +
+  geom_bar(stat = "identity", width = 0.7) +
+  coord_flip() +
+  scale_fill_brewer(palette = "Paired") +
+  labs(title = "Top 12 Game Genres by Global Sales",
+       x = "Game Genre",
+       y = "Global Sales (in millions)") +
+  theme_bw()+
+  theme(legend.position = "right")
+```
+
+
+## Changes and Cyclical Trends in Game Genre Popularity
+
+In order to explore whether the popularity of different game genres has evolved over time, we have plotted line graphs and curve charts of the sales of major game genres over the years.
+
+The main findings of the observations are: 
+
+  - Sales of action and shooter games have risen significantly since 2000, peaking around 2010, followed by a slight decline.
+
+  - Sports games performed particularly well between 2005 and 2010, but sales have continued to decline since the peak.
+
+  - Platform games were most popular around 1990 and then declined.
+
+  - Role-playing games, on the other hand, showed a more steady growth, which slowed down after 2005.
+
+From the curve charts, it is clear that sales of most game genres reached a common peak around 2005, followed by an overall downward trend. This “growth-peak-decline” pattern suggests that the popularity of game genres is characterized by certain cyclical changes.
+```{r}
+graph_data <- clean_VGS %>%
+  filter(!is.na(Year), !is.na(Genre), !is.na(Global_Sales)) %>%
+  filter(Year >= 1980 & Year <= 2024)
+
+GS_year <- graph_data %>%
+  group_by(Year, Genre) %>%
+  summarise(Total_Sales = sum(Global_Sales), 
+            .groups = 'drop')
+
+top5_genres <- GS_year %>%
+  group_by(Genre) %>%
+  summarise(Total = sum(Total_Sales)) %>%
+  arrange(desc(Total)) %>%
+  slice(1:5) %>%
+  pull(Genre)
+
+ggplot(GS_year %>% filter(Genre %in% top5_genres),
+       aes(x = Year, y = Total_Sales, color = Genre)) +
+  geom_line(size = 1.2) +
+  labs(title = "Top 5 Genre within time",
+       x = "Year", y = "Sales in Million）") +
+  theme_bw()
+
+top_GS <- GS_year %>%
+  filter(Genre %in% top5_genres)
+
+ggplot(top_GS, aes(x = Year, y = Total_Sales, color = Genre)) +
+  geom_smooth(method = "loess", se = FALSE, size = 1) +
+  labs(title = "Top Game Genres Sales Trend with Smoothed Line",
+       x = "Year", y = "Sales (in millions)") +
+  theme_bw() +
+  theme(legend.position = "bottom")
+```
+
+
+## Comparative Analysis of Occident and Global market
+
+In this research, we choose to compare and analyze the Occident market with the global market for the following reasons: the Occident market (mainly including North America and Europe) has always been one of the earliest regions in the development of the video game industry, with a mature consumer market and a deep gaming culture foundation. There are significant differences between the Western market and other regions such as Asia in terms of player preferences, game development styles and the use of mainstream platforms. Therefore, the Western market is not only an important part of the global game market, but also a key reference for studying the consumer preferences of different regions.
+```{r}
+region_comparison <- clean_VGS %>%
+  mutate(Occident_Sales = NA_Sales + EU_Sales)%>%
+  group_by(Genre) %>%
+  summarise(Global = sum(Global_Sales, na.rm = TRUE),
+            Occident = sum(Occident_Sales, na.rm = TRUE), ) %>%
+  pivot_longer(cols = c(Global, Occident),
+               names_to = "Region",
+               values_to = "Sales")
+
+ggplot(region_comparison, aes(x = reorder(Genre, -Sales), y = Sales, fill = Region)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Occident VS Global",
+       x = "Genre", y = "Sales") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+```
+
+
+The bar graph show that: 
+
+  - Action games are the most popular genre in both the global and Occident markets.
+
+  - Sports games are particularly strong in Occident markets, but also maintain a high level of popularity globally.
+
+  - Shooters and role-playing games sell well in Occident markets.
+
+  - Platformers sell much more globally than in the West, suggesting that the genre may be more popular in regions such as Asia (e.g. Japan).
+
+  - Some minority genres such as puzzle, adventure, and strategy games sold significantly higher in the global market than in the West, reflecting higher demand for diverse gaming experiences in non-Western markets.
+
+Overall, the Occident market favors mainstream genres such as action, sports, and shooters, while the global market shows greater acceptance of other niche genres while maintaining the popularity of these mainstream genres.
+
+# Result and Conclusion
+By analyzing the global video game sales data between 1978 and 2018, this project concluded the following findings:
+
+First of all, according to the global game market's total sales table, it is found that Action, Sports and Role Playing games have dominated the market for a long time. Among them, Action games are popular among players worldwide because of their fast-paced and instant feedback features, it occupies a major share of the market. Sports and role-playing games have also maintained a stable audience base due to their high relevance to the real world and strong narrative experience.
+
+Secondly, in the time-change analysis, we observe that the popularity of game genres is not static, but shows a dynamic trend. Platform games were most popular around 1990, but for most of the mainstream game genres, the sales peaked around 2005, followed by a decline of different degrees.
+Between 2000 and 2010, global game sales grew significantly. This phenomenon was driven by a combination of factors. The launch of new-generation home game consoles (PlayStation 2, Xbox, Nintendo GameCube, etc.) not only enhanced the performance of the hardware, but also provided gamers with a richer and more immersive gaming experience.
+However, after 2010, global game sales have shown an overall downward trend. This change is also influenced by a number of factors. On the one hand, with the PS3, Xbox 360 and other consoles entering the late stage of their life cycle, while the new generation of consoles (PS4, Xbox One) has not been released yet, the industry has entered a short hardware transition period, resulting in weakened consumer willingness to buy. On the other hand, the explosion of the mobile game market was triggered by the fast spread of mobile devices. A large number of light gamers have been attracted by mobile games with low barrier and free-to-play models, resulting in a loss of users in the traditional console and PC game markets.
+The graphs show that there is a cyclical rise and fall in some game genres, but the length of the cycle and the pace of change varies from genre to genre.
+
+Third, by comparing the sales data of the Occident market and the global market, we find that the overall trends of the two are roughly similar, but there are also significant differences. The Occident market is particularly prominent in its preference for action, sports, and shooters, while the global market maintains a high level of acceptance of these genres, but also shows broader interest in a wider range of genres such as puzzles, adventures, and strategies. This difference reflects the diversity of players' cultural backgrounds and consumption habits in different regions.
+
+Summarizing the above analysis, we can draw the following conclusions:
+  - Action games continue to dominate the market and are a significant driver of the global gaming industry.
+
+  - The popularity of game genres is temporal and cyclical, suggesting that developers need to consider market trends when designing new games.
+  
+  - There are differences in regional preferences, and globalization distribution strategies should be localized and optimized for different markets to increase acceptance and sales.
+
+This research not only reveals the overall trend of the global game market, but also provides a reference for understanding the player preferences and market evolution in different regions, which will help in future game development, and marketing strategy development.
+
+# Reference
+
+- GregorySmith. “Video Game Sales.” Kaggle, GREGORYSMITH, 26 Oct. 2016, 
+  www.kaggle.com/datasets/gregorut/videogamesales
+  
+- Koyama. "History of the Japanese Video Game Industry." 
+  
+- Shaw, Adrienne. “What is video game culture? Cultural Studies and game studies.” Games and Culture, vol. 5, no. 4, 7 May 2010, pp. 403–424,         
+  https://doi.org/10.1177/1555412009360414. 
+
+- “Video-Game-Sales-Data-Science/Video Game Sales with Ratings.Ipynb at Master · Herndone/Video-Game-Sales-Data-Science.” GitHub, HerndonE,
+  github.com/HerndonE/Video-Game-Sales-Data-Science/blob/m  aster/Video%20Game%20Sales%20with%20Ratings.ipynb
+  
+- (PDF) How Video Game History Shows Us Why Video Game Nostalgia Is so Important Now, 
+  www.researchgate.net/publication/215673474_How_Video_Game_History_Shows_Us_Why_Video_Game_Nostalgia_Is_So_Important_Now
+
+# Code Appendix
+```{r, echo=TRUE, eval=FALSE}
+library(readr)
+library(dplyr)
+library(tidyverse)
+library(readxl)
+library(tidyr)
+library(ggplot2)
+library(ggrepel)
+
+# import data
+VGS_Dec2016 <- read_csv("your own path")
+VG <- read_csv("your own path")
+clean_VGS <- read_csv("your own path")
+
+# clean data
+
+clean_VGS_Dec2016 <- VGS_Dec2016 %>% select(-c(Platform, Other_Sales, Critic_Score, Critic_Count, 
+                                               User_Score, User_Count, Developer, Rating))
+
+clean_VG <- VG %>% select(-c(Platform, Other_Sales, Critic_Score, Critic_Count, 
+                             User_Score, User_Count, Developer, Rating))
+
+clean_VGS <- clean_VGS %>% select(-c(Rank, Platform, Other_Sales))
+
+
+# draw graph
+genre_sales <- clean_VGS %>%
+  group_by(Genre) %>%
+  summarise(Global_Sales = sum(Global_Sales, na.rm = TRUE)) %>%
+  arrange(desc(Global_Sales))
+
+ggplot(genre_sales, aes(x = reorder(Genre, Global_Sales), y = Global_Sales, fill = Genre)) +
+  geom_bar(stat = "identity", width = 0.7) +
+  coord_flip() +
+  scale_fill_brewer(palette = "Paired") +
+  labs(title = "Top 12 Game Genres by Global Sales",
+       x = "Game Genre",
+       y = "Global Sales (in millions)") +
+  theme_bw()+
+  theme(legend.position = "right")
+
+#Percentage：
+genre_sales <- clean_VGS %>%
+  group_by(Genre) %>%
+  summarise(Total_Genre_Sales = sum(Global_Sales, na.rm = TRUE))
+
+total_sales <- sum(clean_VGS$Global_Sales, na.rm = TRUE)
+
+genre_sales <- genre_sales %>%
+  mutate(Percentage = (Total_Genre_Sales / total_sales) * 100)
+
+print(genre_sales)
+
+graph_data <- clean_VGS %>%
+  filter(!is.na(Year), !is.na(Genre), !is.na(Global_Sales)) %>%
+  filter(Year >= 1980 & Year <= 2024)
+
+GS_year <- graph_data %>%
+  group_by(Year, Genre) %>%
+  summarise(Total_Sales = sum(Global_Sales), 
+            .groups = 'drop')
+
+top5_genres <- GS_year %>%
+  group_by(Genre) %>%
+  summarise(Total = sum(Total_Sales)) %>%
+  arrange(desc(Total)) %>%
+  slice(1:5) %>%
+  pull(Genre)
+
+ggplot(GS_year %>% filter(Genre %in% top5_genres),
+       aes(x = Year, y = Total_Sales, color = Genre)) +
+  geom_line(size = 1.2) +
+  labs(title = "Top 5 Genre within time",
+       x = "Year", y = "Sales in Million）") +
+  theme_bw()
+
+top_GS <- GS_year %>%
+  filter(Genre %in% top5_genres)
+
+ggplot(top_GS, aes(x = Year, y = Total_Sales, color = Genre)) +
+  geom_smooth(method = "loess", se = FALSE, size = 1) +
+  labs(title = "Top Game Genres Sales Trend with Smoothed Line",
+       x = "Year", y = "Sales (in millions)") +
+  theme_bw() +
+  theme(legend.position = "bottom")
+
+
+region_comparison <- clean_VGS %>%
+  mutate(Occident_Sales = NA_Sales + EU_Sales)%>%
+  group_by(Genre) %>%
+  summarise(Global = sum(Global_Sales, na.rm = TRUE),
+            Occident = sum(Occident_Sales, na.rm = TRUE), ) %>%
+  pivot_longer(cols = c(Global, Occident),
+               names_to = "Region",
+               values_to = "Sales")
+
+ggplot(region_comparison, aes(x = reorder(Genre, -Sales), y = Sales, fill = Region)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Occident VS Global",
+       x = "Genre", y = "Sales") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
+```
+
