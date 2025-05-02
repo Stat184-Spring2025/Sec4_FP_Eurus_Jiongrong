@@ -15,6 +15,7 @@ library(readxl)
 library(tidyr)
 library(ggplot2)
 library(ggrepel)
+library(gt)
 
 # import data
 VGS_Dec2016 <- read_csv("C:/Users/mark/Downloads/FinalProject Data/Video_Games_Sales_as_at_22_Dec_2016.csv")
@@ -37,7 +38,7 @@ clean_VGS <- clean_VGS %>% select(-c(Rank, Platform, Other_Sales))
 # Introduction
 
 As digital technology revolutionizes and cultural consumption patterns evolve, the global video game industry has experienced a deep reshaping. Along with the continuous expansion of the industry scale, the market pattern of game genres is going through a dynamic adjustment. There are classic genres that continue to lead the market, and there are also constantly emerging sub genres that combine innovative forms. However, the popularity of different game genres is constantly changing, which is closely related to several factors, including technological advances, player preferences, cultural differences, and marketing strategies.
-The purpose of this project is to explore global trends in the popularity of video game genres, specifically the changes of different game genres globally as well as in specific regions (e.g. the North American market). By analyzing historical data, we hope to answer the following core questions:
+The purpose of this project is to explore global trends in the popularity of video game genres, specifically the changes of different game genres globally as well as in specific regions (e.g. the North American market and European Market). By analyzing historical data, we hope to answer the following core questions:
 
 1. Which game genres are the best sellers? What is their percentage share in the global market?
   
@@ -49,7 +50,7 @@ The purpose of this project is to explore global trends in the popularity of vid
     
 3. What are the differences in game genre trends between Occident and global markets?
   
-  Occident markets are usually one of the key markets in the video game industry, but their preferences may be different from the general trends in the global market. We will make an in-depth comparison of the differences in game genres between the North American market and the global market, analyze their respective popularity trends and preferences, explore the impact of regional differences in the market on the game industry.
+  Occident markets (North American and European Market) are usually one of the key markets in the video game industry, but their preferences may be different from the general trends in the global market. We will make an in-depth comparison of the differences in game genres between the Occident market and the global market, analyze their respective popularity trends and preferences, explore the impact of regional differences in the market on the game industry.
 
 These questions not only help us understand the evolution of the video game market, but also provide valuable market insights for game developers and publishers, helping them better grasp player needs and market trends in order to optimize their product and marketing strategies.
 
@@ -102,13 +103,28 @@ genre_sales <- clean_VGS %>%
 total_sales <- sum(clean_VGS$Global_Sales, na.rm = TRUE)
 
 genre_sales <- genre_sales %>%
-  mutate(Percentage = (Total_Genre_Sales / total_sales) * 100)
+  mutate(Percentage = (Total_Genre_Sales / total_sales) )
 
-print(genre_sales)
+genre_sales %>%
+  gt() %>%
+  fmt_percent(
+    columns = vars(Percentage),
+    decimals = 2
+  )%>%
+  cols_label(
+    Genre = "Genre",
+    Total_Genre_Sales = "Total Sales (in million)",
+    Percentage = "Percentage"
+  ) 
 ```
+This table visualize the differences in sales of different game genres in the global game market, revealing which genres are the most popular among gamers and which are on the periphery.
+- Action games have the highest sales, with 16.7%, and   are the absolute main force.
+
+- Sports, role-playing, shooting, and platform games also have high sales, constituting the “mainstream camp”.
+
+- Puzzle, adventure, and strategy games have relatively low sales, belong to the “non-mainstream but stable”.
 
 
-This distribution reflects the fact that fast-paced, easy to play action games and sports games linked to real sporting events have maintanied a very high level of global appeal for a long time.
 ```{r}
 genre_sales <- clean_VGS %>%
   group_by(Genre) %>%
@@ -123,8 +139,14 @@ ggplot(genre_sales, aes(x = reorder(Genre, Global_Sales), y = Global_Sales, fill
        x = "Game Genre",
        y = "Global Sales (in millions)") +
   theme_bw()+
-  theme(legend.position = "right")
+  theme(legend.position = "none")
 ```
+Action games are fast-paced, intuitive and simple to operate, and suitable for fragmented entertainment, these features are highly compatible with the entertainment needs of the majority of players.
+
+Sports games can be marketed with the help of real-life stars and events (World Cup, NBA), and have a strong ability to link reality.
+Shooting games emphasize competition and confrontation, and are particularly popular in the Occident (Europe and USA). And role-playing games are rich in story, stickiness, and have a long time of user investment. 
+
+Many high-selling genres are backed by long-running classic IPs (Mario, FIFA, Call of Duty), releasing new works every year, with steadily growing sales and accumulating huge totals. 
 
 
 ## Changes and Cyclical Trends in Game Genre Popularity
@@ -180,7 +202,7 @@ ggplot(top_GS, aes(x = Year, y = Total_Sales, color = Genre)) +
 
 ## Comparative Analysis of Occident and Global market
 
-In this research, we choose to compare and analyze the Occident market with the global market for the following reasons: the Occident market (mainly including North America and Europe) has always been one of the earliest regions in the development of the video game industry, with a mature consumer market and a deep gaming culture foundation. There are significant differences between the Western market and other regions such as Asia in terms of player preferences, game development styles and the use of mainstream platforms. Therefore, the Western market is not only an important part of the global game market, but also a key reference for studying the consumer preferences of different regions.
+In this research, we choose to compare and analyze the Occident market (North American and European market) with the global market for the following reasons: the Occident market has always been one of the earliest regions in the development of the video game industry, with a mature consumer market and a deep gaming culture foundation. There are significant differences between the Western market and other regions such as Asia in terms of player preferences, game development styles and the use of mainstream platforms. Therefore, the Western market is not only an important part of the global game market, but also a key reference for studying the consumer preferences of different regions.
 ```{r}
 region_comparison <- clean_VGS %>%
   mutate(Occident_Sales = NA_Sales + EU_Sales)%>%
@@ -293,7 +315,7 @@ ggplot(genre_sales, aes(x = reorder(Genre, Global_Sales), y = Global_Sales, fill
        x = "Game Genre",
        y = "Global Sales (in millions)") +
   theme_bw()+
-  theme(legend.position = "right")
+  theme(legend.position = "none")
 
 #Percentage：
 genre_sales <- clean_VGS %>%
@@ -303,9 +325,19 @@ genre_sales <- clean_VGS %>%
 total_sales <- sum(clean_VGS$Global_Sales, na.rm = TRUE)
 
 genre_sales <- genre_sales %>%
-  mutate(Percentage = (Total_Genre_Sales / total_sales) * 100)
+  mutate(Percentage = (Total_Genre_Sales / total_sales) )
 
-print(genre_sales)
+genre_sales %>%
+  gt() %>%
+  fmt_percent(
+    columns = vars(Percentage),
+    decimals = 2
+  )%>%
+  cols_label(
+    Genre = "Genre",
+    Total_Genre_Sales = "Total Sales (in million)",
+    Percentage = "Percentage"
+  ) 
 
 graph_data <- clean_VGS %>%
   filter(!is.na(Year), !is.na(Genre), !is.na(Global_Sales)) %>%
