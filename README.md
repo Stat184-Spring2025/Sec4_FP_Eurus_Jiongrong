@@ -41,4 +41,4 @@ data_cleaning_visual.r
 
 Eurus Mao - xqm5143@psu.edu 
 
-Jiongrong Pan - 
+Jiongrong Pan - jmp7875@psu.edu
